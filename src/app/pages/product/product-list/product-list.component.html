@@ -1,0 +1,232 @@
+<div class="product-container">
+  <div class="add-container">
+    <button class="btn-add" nz-button nzType="primary" (click)="showAddModal()">
+      <nz-icon nzType="plus" nzTheme="outline" />
+      Add product
+    </button>
+    <nz-modal
+      [(nzVisible)]="isVisibleAdd"
+      nzTitle="Add Product"
+      nzOkText="Ok"
+      nzCancelText="Cancel"
+      [nzOkLoading]="isOkLoading"
+      (nzOnOk)="handleAddOk()"
+      (nzOnCancel)="handleAddCancel()"
+    >
+      <ng-container *nzModalContent>
+        <form nz-form [formGroup]="productForm" class="product-form">
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" nzRequired>Product Name</nz-form-label>
+            <nz-form-control
+              [nzSm]="14"
+              nzErrorTip="Please enter product name, minimum 3 characters"
+            >
+              <input
+                nz-input
+                formControlName="productName"
+                placeholder="Enter product name"
+              />
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" nzRequired>Product code</nz-form-label>
+            <nz-form-control
+              [nzSm]="14"
+              nzErrorTip="Please enter product code (P-xxx)"
+            >
+              <input
+                nz-input
+                formControlName="productCode"
+                placeholder="Enter product code P-xxxx"
+              />
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" nzRequired>Price</nz-form-label>
+            <nz-form-control
+              [nzSm]="14"
+              nzErrorTip="Please enter a price greater than or equal to 0"
+            >
+              <input
+                nz-input
+                type="number"
+                formControlName="productPrice"
+                placeholder="Enter product price"
+              />
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" nzRequired>Quantity</nz-form-label>
+            <nz-form-control
+              [nzSm]="14"
+              nzErrorTip="Please enter quantity greater than or equal to 0"
+            >
+              <input
+                nz-input
+                type="number"
+                formControlName="productQuantity"
+                placeholder="Enter quantity"
+              />
+            </nz-form-control>
+          </nz-form-item>
+        </form>
+      </ng-container>
+    </nz-modal>
+  </div>
+
+  <nz-table
+    #sortTable
+    nzShowSizeChanger
+    [nzData]="listOfData"
+    [nzScroll]="{ x: '1000px' }"
+  >
+    <thead>
+      <tr>
+        <th style="width: 60px">STT</th>
+        <th nzShowSort nzSortKey="productName" [nzSortFn]="sortByName">
+          Product Name
+        </th>
+        <th nzShowSort nzSortKey="productCode" [nzSortFn]="sortByCode">
+          Product Code
+        </th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let data of sortTable.data; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ data.productName }}</td>
+        <td>{{ data.productCode }}</td>
+        <td>
+          {{
+            data.productPrice | currency : "VND" : "symbol" : "1.0-0" : "vi-VN"
+          }}
+        </td>
+        <td>{{ data.productQuantity }}</td>
+        <td>
+          <span
+            [ngClass]="{
+              'text-success': data.productStatus === 'In Stock',
+              'text-danger': data.productStatus === 'Out of Stock'
+            }"
+          >
+            {{ data.productStatus }}
+          </span>
+        </td>
+        <td class="action-container">
+          <div class="edit-container">
+            <button
+              class="btn-action"
+              nz-button
+              nzType="link"
+              (click)="showEditModal(data)"
+            >
+              <nz-icon nzType="edit" nzTheme="outline"></nz-icon>
+            </button>
+          </div>
+
+          <button
+            class="btn-action"
+            nz-button
+            nzType="link"
+            nzDanger
+            (click)="handleDelete(data.id)"
+          >
+            <nz-icon nzType="delete" nzTheme="outline"></nz-icon>
+          </button>
+          <a
+            [routerLink]="['/product/detail', data.id]"
+            class="btn-action btn-detail"
+            nz-button
+            nzType="link"
+          >
+            <nz-icon nzType="file-search" nzTheme="outline" />
+          </a>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+  <nz-modal
+    [(nzVisible)]="isVisibleEdit"
+    nzTitle="Edit Product"
+    nzOkText="Ok"
+    nzCancelText="Cancel"
+    [nzOkLoading]="isOkLoading"
+    (nzOnOk)="handleEditOk()"
+    (nzOnCancel)="handleEditCancel()"
+  >
+    <ng-container *nzModalContent>
+      <form nz-form [formGroup]="productForm" class="product-form">
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" nzRequired>Product Name</nz-form-label>
+          <nz-form-control
+            [nzSm]="14"
+            nzErrorTip="Please enter product name, minimum 3 characters"
+          >
+            <input
+              nz-input
+              formControlName="productName"
+              placeholder="Enter product name"
+            />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" nzRequired>Product code</nz-form-label>
+          <nz-form-control
+            [nzSm]="14"
+            nzErrorTip="Please enter product code (P-xxx)"
+          >
+            <input
+              nz-input
+              formControlName="productCode"
+              placeholder="Enter product code P-xxxx"
+            />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" nzRequired>Price</nz-form-label>
+          <nz-form-control
+            [nzSm]="14"
+            nzErrorTip="Please enter a price greater than or equal to 0"
+          >
+            <input
+              nz-input
+              type="number"
+              formControlName="productPrice"
+              placeholder="Enter product price"
+            />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" nzRequired>Quantity</nz-form-label>
+          <nz-form-control
+            [nzSm]="14"
+            nzErrorTip="Please enter quantity greater than or equal to 0"
+          >
+            <input
+              nz-input
+              type="number"
+              formControlName="productQuantity"
+              placeholder="Enter quantity"
+            />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" nzRequired>Status</nz-form-label>
+          <nz-form-control [nzSm]="14">
+            <nz-select formControlName="productStatus">
+              <nz-option nzValue="In Stock" nzLabel="In Stock"></nz-option>
+              <nz-option
+                nzValue="Out of Stock"
+                nzLabel="Out of Stock"
+              ></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </ng-container>
+  </nz-modal>
+</div>

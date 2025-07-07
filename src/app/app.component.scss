@@ -1,0 +1,26 @@
+:host {
+  display: flex;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.app-layout {
+  height: 100vh;
+}
+.menu-sidebar {
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
+  box-shadow: 2px 0 6px rgba(0, 21, 41, 0.35);
+}
+nz-header {
+  padding: 0;
+  width: 100%;
+  z-index: 2;
+}
+.inner-content {
+  padding: 16px;
+  background: #fff;
+  height: 100%;
+  overflow: auto;
+}
