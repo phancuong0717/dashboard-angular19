@@ -13,7 +13,7 @@ import {
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzSelectModule } from 'ng-zorro-antd/select';
-import { RouterLink } from '@angular/router';
+
 interface ProductData {
   id: number;
   productName: string;
@@ -38,16 +38,19 @@ interface ProductData {
     NzInputModule,
     NzSelectModule,
     ReactiveFormsModule,
-    RouterLink,
   ],
 })
 export class ProductListComponent implements OnInit {
   listOfData: readonly ProductData[] = [];
   productForm: FormGroup;
   selectedProductId: number | null = null;
-  isOkLoading = false;
   sortName: string | null = null;
   sortValue: string | null = null;
+  isVisible: boolean = false;
+  isOkLoading: boolean = false;
+  isEditMode: boolean = false;
+  modalTitle: string = '';
+  isAddMode: boolean = false;
 
   // ================================
   // =======init data table======
@@ -56,7 +59,7 @@ export class ProductListComponent implements OnInit {
       id: i + 1,
       productName: `Product ${i + 1}`,
       productCode: `P-${1000 + i + 1}`,
-      productPrice: parseFloat((Math.random() * 100000).toFixed(2)),
+      productPrice: parseFloat((Math.random() * 100000).toFixed(0)),
       productQuantity: Math.floor(Math.random() * 100),
       productStatus: Math.random() > 0.5 ? 'In Stock' : 'Out of Stock',
     }));
@@ -112,43 +115,22 @@ export class ProductListComponent implements OnInit {
       return 0;
     });
   }
-  // =========handle Add ===========
-  isVisibleAdd = false;
+  // =========Handle actions ===========
   showAddModal(): void {
-    this.isVisibleAdd = true;
+    this.isVisible = true;
+    this.isEditMode = true;
+    this.isAddMode = true;
+    this.modalTitle = 'Add Product';
     this.productForm.reset();
+    this.productForm.get('productStatus')?.clearValidators();
+    this.productForm.get('productStatus')?.updateValueAndValidity();
   }
-  handleAddOk(): void {
-    this.isOkLoading = true;
 
-    if (this.productForm.valid) {
-      setTimeout(() => {
-        const newProduct: ProductData = {
-          id: this.listOfData.length + 1,
-          ...this.productForm.value,
-        };
-        this.listOfData = [...this.listOfData, newProduct];
-        this.isOkLoading = false;
-        this.isVisibleAdd = false;
-      }, 1000);
-    } else {
-      Object.values(this.productForm.controls).forEach((control) => {
-        if (control.invalid) {
-          control.markAsDirty();
-          control.updateValueAndValidity({ onlySelf: true });
-        }
-      });
-    }
-  }
-  handleAddCancel(): void {
-    this.isVisibleAdd = false;
-    this.productForm.reset();
-  }
-  // ================================
-  // ========= handle Edit ===========
-  isVisibleEdit = false;
-  showEditModal(product: ProductData): void {
-    this.isVisibleEdit = true;
+  showDetailModal(product: ProductData): void {
+    this.isVisible = true;
+    this.isEditMode = false;
+    this.isAddMode = false;
+    this.modalTitle = 'Detail Product';
     this.selectedProductId = product.id;
     this.productForm.patchValue({
       productName: product.productName,
@@ -157,21 +139,60 @@ export class ProductListComponent implements OnInit {
       productQuantity: product.productQuantity,
       productStatus: product.productStatus,
     });
+    this.productForm.get('productStatus')?.setValidators([Validators.required]);
+    this.productForm.get('productStatus')?.updateValueAndValidity();
+    this.productForm.disable();
   }
 
-  handleEditOk(): void {
-    if (this.productForm.valid && this.selectedProductId !== null) {
+  switchToEditMode(): void {
+    this.isEditMode = true;
+    this.isAddMode = false;
+    this.modalTitle = 'Edit Product';
+    this.productForm.get('productStatus')?.setValidators([Validators.required]);
+    this.productForm.get('productStatus')?.updateValueAndValidity();
+    this.productForm.enable();
+  }
+  handleOk(): void {
+    if (!this.isEditMode) {
+      this.isVisible = false;
+      this.productForm.reset();
+      this.productForm.enable();
+      this.productForm
+        .get('productStatus')
+        ?.setValidators([Validators.required]);
+      this.productForm.get('productStatus')?.updateValueAndValidity();
+      return;
+    }
+
+    if (this.productForm.valid) {
       this.isOkLoading = true;
       setTimeout(() => {
-        this.listOfData = this.listOfData.map((item) =>
-          item.id === this.selectedProductId
-            ? { ...item, ...this.productForm.value }
-            : item
-        );
-        this.selectedProductId = null;
+        if (this.selectedProductId === null) {
+          // Add new product
+          const newProduct: ProductData = {
+            id: this.listOfData.length + 1,
+            ...this.productForm.value,
+            productStatus: 'In Stock',
+          };
+          this.listOfData = [...this.listOfData, newProduct];
+        } else {
+          // Update existing product
+          this.listOfData = this.listOfData.map((item) =>
+            item.id === this.selectedProductId
+              ? { ...item, ...this.productForm.value }
+              : item
+          );
+        }
         this.isOkLoading = false;
-        this.isVisibleEdit = false;
+        this.isVisible = false;
+        this.selectedProductId = null;
+        this.isAddMode = false;
         this.productForm.reset();
+        this.productForm
+          .get('productStatus')
+          ?.setValidators([Validators.required]);
+        this.productForm.get('productStatus')?.updateValueAndValidity();
+        this.productForm.enable();
       }, 1000);
     } else {
       Object.values(this.productForm.controls).forEach((control) => {
@@ -183,10 +204,14 @@ export class ProductListComponent implements OnInit {
     }
   }
 
-  handleEditCancel(): void {
-    this.isVisibleEdit = false;
+  handleCancel(): void {
+    this.isVisible = false;
     this.selectedProductId = null;
+    this.isAddMode = false;
     this.productForm.reset();
+    this.productForm.get('productStatus')?.setValidators([Validators.required]);
+    this.productForm.get('productStatus')?.updateValueAndValidity();
+    this.productForm.enable();
   }
 
   // handle delete
