@@ -11,14 +11,19 @@
   display: flex;
   justify-content: space-between;
 }
+
+.header-action {
+  display: flex;
+}
 .header-trigger,
 .header-icon {
-  height: 64px;
-  padding: 20px 20px;
   font-size: 20px;
   cursor: pointer;
   color: #5e5e5e;
+  margin-left: 20px;
+  margin-right: 20px;
 }
+
 .header-trigger {
   display: flex;
   transition: all 0.3s, padding 0s;
@@ -34,4 +39,13 @@
 }
 .dropdown-icon {
   margin-right: 8px;
+}
+
+nz-badge .header-icon {
+  padding: 0;
+  font-size: 20px;
+}
+
+.menu-item-content {
+  padding: 4px;
 }

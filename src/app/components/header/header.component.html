@@ -7,34 +7,72 @@
       />
     </span>
     <div class="header-action">
-      <span class="header-icon">
-        <nz-icon class="trigger" nzType="bell" />
-      </span>
-      <span
-        nz-dropdown
-        nzTrigger="click"
-        [nzDropdownMenu]="menu"
-        class="header-icon"
-      >
-        <nz-icon class="trigger" nzType="user" />
-      </span>
-      <nz-dropdown-menu #menu="nzDropdownMenu">
-        <ul class="dropdown-content" nz-menu>
-          <li class="dropdown-item" nz-menu-item>
-            <nz-icon class="dropdown-icon" nzType="setting" nzTheme="outline" />
-            Setting
-          </li>
-          <li class="dropdown-item" nz-menu-item>
-            <nz-icon class="dropdown-icon" nzType="lock" nzTheme="outline" />
-            Change password
-          </li>
-          <li nz-menu-divider></li>
-          <li class="dropdown-item" nz-menu-item>
-            <nz-icon class="dropdown-icon" nzType="logout" nzTheme="outline" />
-            Logout
-          </li>
-        </ul>
-      </nz-dropdown-menu>
+      <div class="notification-container">
+        <nz-badge
+          nz-dropdown
+          nzTrigger="click"
+          [nzDropdownMenu]="notify"
+          class="header-icon"
+          [nzCount]="notifications.length"
+          nzShowZero
+        >
+          <nz-icon class="trigger" nzType="bell" />
+        </nz-badge>
+        <nz-dropdown-menu #notify="nzDropdownMenu">
+          @if(notifications.length > 0 ){
+          <ul class="dropdown-content" nz-menu>
+            @for(notification of notifications; track notification){
+            <li nz-menu-item>
+              <div class="menu-item-content">
+                {{ notification }}
+              </div>
+            </li>
+            }
+          </ul>
+          } @else{
+          <nz-empty
+            class="ant-dropdown-menu"
+            [nzNotFoundContent]="'No notification'"
+          ></nz-empty>
+          }
+        </nz-dropdown-menu>
+      </div>
+
+      <div class="user-action-container">
+        <span
+          nz-dropdown
+          nzTrigger="click"
+          [nzDropdownMenu]="actions"
+          class="header-icon"
+        >
+          <nz-icon class="trigger" nzType="user" />
+        </span>
+        <nz-dropdown-menu #actions="nzDropdownMenu">
+          <ul class="dropdown-content" nz-menu>
+            <li class="dropdown-item" nz-menu-item>
+              <nz-icon
+                class="dropdown-icon"
+                nzType="setting"
+                nzTheme="outline"
+              />
+              Setting
+            </li>
+            <li class="dropdown-item" nz-menu-item>
+              <nz-icon class="dropdown-icon" nzType="lock" nzTheme="outline" />
+              Change password
+            </li>
+            <li nz-menu-divider></li>
+            <li class="dropdown-item" nz-menu-item>
+              <nz-icon
+                class="dropdown-icon"
+                nzType="logout"
+                nzTheme="outline"
+              />
+              Logout
+            </li>
+          </ul>
+        </nz-dropdown-menu>
+      </div>
     </div>
   </div>
 </div>
